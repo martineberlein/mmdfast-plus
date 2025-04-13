@@ -17,6 +17,9 @@ classifiers = [
 ]
 dependencies = [
     "setuptools",
+    "scikit-learn",
+    "pandas",
+    "matplotlib",
 ]
 
 [project.optional-dependencies]
