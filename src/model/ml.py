@@ -1,6 +1,7 @@
 import os
 import logging
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
@@ -146,7 +147,22 @@ class BaseClassifierModel:
         false_predictions = X_test_inversed[X_test_inversed["Actual"] != X_test_inversed["Predicted"]]
         logger.info("Correct predictions: %d, Mispredictions: %d",
                     correct_predictions.shape[0], false_predictions.shape[0])
+
         return correct_predictions, false_predictions
+
+    def get_mispredicted_dataframe(self):
+        """
+        Create a DataFrame containing mispredicted samples from the test set.
+        """
+        predictions = self.model.predict(self.X_test)
+
+        # check for mispredictions
+        mispredictions = np.where(self.y_test == predictions, 0, 1)
+
+        # convert to pandas dataframe
+        df_mispredictions = pd.DataFrame({'misprediction': mispredictions})
+        return df_mispredictions
+
 
     def get_mispredicted_indices(self):
         """
@@ -214,44 +230,44 @@ class SVMModel(BaseClassifierModel):
         logger.info("Initialized SVM (SVC).")
 
 
-if __name__ == "__main__":
-    csv_path = "../../data/diabetes.csv"
-
-    logger.info("Starting Random Forest model training...")
-    rf = RandomForestModel()
-    rf.split_and_prepare_data(csv_path, test_size=0.3)
-    rf.train()
-    rf.evaluate()
-    rf_correct, rf_wrong = rf.get_correct_wrong()
-    print("Random Forest - Correct Predictions (first few rows):")
-    print(rf_correct.head())
-    print("\nRandom Forest - Mis-Predictions (first few rows):")
-    print(rf_wrong.head())
-
-    logger.info("Starting Decision Tree model training...")
-    dt = DecisionTreeModel()
-    dt.split_and_prepare_data(csv_path, test_size=0.3)
-    dt.train()
-    dt.evaluate()
-    dt_correct, dt_wrong = dt.get_correct_wrong()
-    print("Decision Tree - Correct Predictions (first few rows):")
-    print(dt_correct.head())
-    print("\nDecision Tree - Mis-Predictions (first few rows):")
-    print(dt_wrong.head())
-
-    logger.info("Starting SVM model training...")
-    svm = SVMModel()
-    svm.split_and_prepare_data(csv_path, test_size=0.3)
-    svm.train()
-    svm.evaluate()
-    svm_correct, svm_wrong = svm.get_correct_wrong()
-    print("SVM - Correct Predictions (first few rows):")
-    print(svm_correct.head())
-    print("\nSVM - Mis-Predictions (first few rows):")
-    print(svm_wrong.head())
-
-    # Optionally, retrieve mispredicted indices for one of the models
-    rf_mispred_indices = rf.get_mispredicted_indices()
-    logger.info("Random Forest - Mispredicted indices: %s", list(rf_mispred_indices))
-    print("\nRandom Forest - Indices of mispredicted samples:")
-    print(rf_mispred_indices)
+# if __name__ == "__main__":
+#     csv_path = "../../data/diabetes.csv"
+#
+#     logger.info("Starting Random Forest model training...")
+#     rf = RandomForestModel()
+#     rf.split_and_prepare_data(csv_path, test_size=0.3)
+#     rf.train()
+#     rf.evaluate()
+#     rf_correct, rf_wrong = rf.get_correct_wrong()
+#     print("Random Forest - Correct Predictions (first few rows):")
+#     print(rf_correct.head())
+#     print("\nRandom Forest - Mis-Predictions (first few rows):")
+#     print(rf_wrong.head())
+#
+#     logger.info("Starting Decision Tree model training...")
+#     dt = DecisionTreeModel()
+#     dt.split_and_prepare_data(csv_path, test_size=0.3)
+#     dt.train()
+#     dt.evaluate()
+#     dt_correct, dt_wrong = dt.get_correct_wrong()
+#     print("Decision Tree - Correct Predictions (first few rows):")
+#     print(dt_correct.head())
+#     print("\nDecision Tree - Mis-Predictions (first few rows):")
+#     print(dt_wrong.head())
+#
+#     logger.info("Starting SVM model training...")
+#     svm = SVMModel()
+#     svm.split_and_prepare_data(csv_path, test_size=0.3)
+#     svm.train()
+#     svm.evaluate()
+#     svm_correct, svm_wrong = svm.get_correct_wrong()
+#     print("SVM - Correct Predictions (first few rows):")
+#     print(svm_correct.head())
+#     print("\nSVM - Mis-Predictions (first few rows):")
+#     print(svm_wrong.head())
+#
+#     # Optionally, retrieve mispredicted indices for one of the models
+#     rf_mispred_indices = rf.get_mispredicted_indices()
+#     logger.info("Random Forest - Mispredicted indices: %s", list(rf_mispred_indices))
+#     print("\nRandom Forest - Indices of mispredicted samples:")
+#     print(rf_mispred_indices)
