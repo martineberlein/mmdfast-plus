@@ -25,7 +25,6 @@ class TestMMD(unittest.TestCase):
         model.split_and_prepare_data(df_path, test_size=0.2)
         model.train()
         model.evaluate()
-        model_correct, model_wrong = model.get_correct_wrong()
 
         mispredictions = model.get_mispredicted_dataframe()
 
@@ -53,7 +52,6 @@ class TestMMD(unittest.TestCase):
         model.split_and_prepare_data(df_path, test_size=0.2)
         model.train()
         model.evaluate()
-        model_correct, model_wrong = model.get_correct_wrong()
 
         reducer_rf = Reducer(top_n=3, random_state=42)
         rf_wrong_reduced = reducer_rf.fit_transform(model.X_test, model.y_test)
