@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -30,7 +31,8 @@ class BaseClassifierModel:
     constructors.
     """
 
-    def __init__(self):
+    def __init__(self, pred_label=None):
+        self.pred_label: str = pred_label if pred_label else "Outcome"
         self.model = None  # To be set by subclasses
         self.scaler = StandardScaler()
         self.X_train = None
@@ -40,8 +42,7 @@ class BaseClassifierModel:
         self.y_test = None
         logger.info("BaseClassifierModel initialized.")
 
-    @staticmethod
-    def _load_data(csv_path):
+    def _load_data(self, csv_path):
         """
         Load dataset from a CSV file.
 
@@ -56,11 +57,15 @@ class BaseClassifierModel:
         """
         try:
             logger.info("Loading data from file: %s", csv_path)
-            df = pd.read_csv(csv_path)
-            if "Outcome" not in df.columns:
-                raise ValueError("CSV data must contain an 'Outcome' column.")
-            X = df.drop("Outcome", axis=1)
-            y = df["Outcome"]
+            if isinstance(csv_path, Path):
+                df = pd.read_csv(csv_path)
+            else:
+                df = csv_path
+            print(self.pred_label)
+            if not self.pred_label in df.columns:
+                raise ValueError(f"CSV data must contain the {self.pred_label} column.")
+            X = df.drop(self.pred_label, axis=1)
+            y = df[self.pred_label]
             logger.info("Data loaded successfully. Dataset shape: %s", df.shape)
             return X, y
         except Exception as e:
@@ -92,7 +97,7 @@ class BaseClassifierModel:
         logger.info("Data scaling complete.")
 
         # Convert numpy arrays back to DataFrames preserving feature names
-        feature_names = pd.read_csv(csv_path).drop("Outcome", axis=1).columns
+        feature_names = X.columns
         self.X_train = pd.DataFrame(self.X_train, columns=feature_names)
         self.X_test = pd.DataFrame(self.X_test, columns=feature_names)
         logger.info("Converted arrays back to DataFrame format.")
@@ -202,8 +207,8 @@ class RandomForestModel(BaseClassifierModel):
     A classifier model using the RandomForestClassifier.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.model = RandomForestClassifier(random_state=0)
         logger.info("Initialized RandomForestClassifier.")
 
