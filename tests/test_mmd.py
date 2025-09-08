@@ -34,27 +34,32 @@ class TestMMD(unittest.TestCase):
             df_mis,
             ("misprediction", True),
             relevant_attributes=column_types,
-            coverage=0.6,
+            coverage=0.8,
             allow_disjunctions=True,
         )
 
         result_ = result.dataframe()
+        print(result_)
         print(result_[['ruleset', 'precision', 'recall']])
+        for r in result_["ruleset"]:
+            print(r)
 
     def test_mmd_fr(self):
-        df_path = RESOURCES_PATH / "diabetes.csv"
+        df_path = RESOURCES_PATH / "hotel_bookings.csv"
+        #df_path = RESOURCES_PATH / "BRCTP.csv"
         df = pd.read_csv(df_path)
+        #df = df.drop(columns=["time"])
 
         # Classify columns in the DataFrame
         column_types = classify_columns(df.drop(columns=["Outcome"]))
         print("Column types:", column_types)
 
-        model = RandomForestModel()
-        model.split_and_prepare_data(df_path, test_size=0.5)
+        model = RandomForestModel(pred_label="Outcome")
+        model.split_and_prepare_data(df, test_size=0.6)
         model.train()
         model.evaluate()
 
-        reducer_rf = Reducer(top_n=3, random_state=42)
+        reducer_rf = Reducer(top_n=4, random_state=42)
         rf_wrong_reduced = reducer_rf.fit_transform(model.X_test, model.y_test)
         influential_features = reducer_rf.selected_features
         print("Selected features:", influential_features)
@@ -79,8 +84,8 @@ class TestMMD(unittest.TestCase):
             print(r)
 
     def test_python_mmd(self):
-        df_path = RESOURCES_PATH / "data_Python.csv"
-        df_path_label = RESOURCES_PATH / "label_Python.csv"
+        df_path = RESOURCES_PATH / "data_PHP.csv"
+        df_path_label = RESOURCES_PATH / "label_PHP.csv"
         df_data = pd.read_csv(df_path)
         df_label = pd.read_csv(df_path_label)
 

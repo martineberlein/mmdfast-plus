@@ -53,7 +53,7 @@ class Reducer:
 
         if not self.selected_features:
             LOOGER.warning("No features were selected. Check your top_n or threshold parameters.")
-        return self
+        return importances
 
     def transform(self, X):
         """
